@@ -7,6 +7,7 @@ import { Header } from "@/components/Header";
 import { StreamProgressChart } from "@/components/StreamProgressChart";
 import {
   FiEye,
+  FiEyeOff,
   FiLock,
   FiShield,
   FiPause,
@@ -17,11 +18,13 @@ import {
   FiCopy,
   FiClock,
   FiCode,
+  FiGlobe,
 } from "react-icons/fi";
 
 export default function StreamDetailsPage() {
   const [isPaused, setIsPaused] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [viewMode, setViewMode] = useState<"payer" | "public">("payer");
 
   const handleCopyHash = () => {
     setCopied(true);
@@ -57,16 +60,45 @@ export default function StreamDetailsPage() {
                 </span>
               </h1>
               <p className="text-xs text-[#958EA0] font-jetbrains">
-                Stream ID: 0x84920491823901a • Recipient: 0x94...21a8
+                Stream ID: 0x84920491823901a • Recipient: {viewMode === "payer" ? "0x9491...21a8" : "🔒 0xVeil...Proxy (Shielded)"}
               </p>
             </div>
 
-            {/* Controls */}
-            <div className="flex items-center gap-2">
+            {/* Controls & Payer vs Public Toggle */}
+            <div className="flex flex-wrap items-center gap-3">
+              {/* View Mode Switcher (Payer vs Public) */}
+              <div className="p-1 rounded-lg bg-[#1B1B1E] border border-[#27272A] flex items-center gap-1 text-xs font-jetbrains">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("payer")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
+                    viewMode === "payer"
+                      ? "bg-[#8B5CF6] text-white shadow-sm font-medium"
+                      : "text-[#958EA0] hover:text-white"
+                  }`}
+                >
+                  <FiEye className="w-3.5 h-3.5" />
+                  <span>Payer View (Plaintext)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setViewMode("public")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
+                    viewMode === "public"
+                      ? "bg-rose-500/20 text-rose-300 border border-rose-500/30 font-medium"
+                      : "text-[#958EA0] hover:text-white"
+                  }`}
+                >
+                  <FiGlobe className="w-3.5 h-3.5 text-rose-400" />
+                  <span>Public Explorer View</span>
+                </button>
+              </div>
+
               <button
                 type="button"
                 onClick={() => setIsPaused(!isPaused)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-md text-xs font-medium transition-colors border ${
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors border ${
                   isPaused
                     ? "bg-emerald-600 text-white hover:bg-emerald-500 border-emerald-500"
                     : "bg-[#1F1F22] text-white hover:bg-[#2A2A2D] border-[#27272A]"
@@ -75,42 +107,41 @@ export default function StreamDetailsPage() {
                 {isPaused ? (
                   <>
                     <FiPlay className="w-3.5 h-3.5" />
-                    <span>Resume Stream</span>
+                    <span>Resume</span>
                   </>
                 ) : (
                   <>
                     <FiPause className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Pause Stream</span>
+                    <span>Pause</span>
                   </>
                 )}
-              </button>
-
-              <button
-                type="button"
-                className="flex items-center gap-2 px-4 py-2 rounded-md bg-[#8B5CF6] hover:bg-[#7C3AED] text-white text-xs font-medium transition-colors shadow-sm"
-              >
-                <FiPlus className="w-3.5 h-3.5" />
-                <span>Top Up Vault</span>
-              </button>
-
-              <button
-                type="button"
-                className="p-2 rounded-md bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-colors"
-                title="Cancel Stream"
-              >
-                <FiTrash2 className="w-4 h-4" />
               </button>
             </div>
           </header>
 
+          {/* Public View Warning Notice Banner */}
+          {viewMode === "public" && (
+            <aside className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs font-jetbrains text-rose-300 flex items-start gap-3">
+              <FiGlobe className="w-5 h-5 shrink-0 text-rose-400 mt-0.5" />
+              <div className="space-y-1">
+                <p className="font-semibold text-rose-200 uppercase tracking-wider">
+                  Public Block Explorer Inspection Mode
+                </p>
+                <p className="text-[11px] leading-relaxed text-rose-300/80">
+                  This view simulates what external third parties and public block explorers (Etherscan) see on Sepolia. All recipient wallet addresses and salary stream amounts are encrypted via Nox TEE contracts.
+                </p>
+              </div>
+            </aside>
+          )}
+
           {/* Live Progress Visualizer Component */}
           <section>
             <StreamProgressChart
-              initialAmount={14250.48}
-              totalAmount={25000.0}
-              ratePerSec={0.00482}
-              tokenSymbol="USDC"
-              streamName="VP of Engineering - Executive Payroll"
+              initialAmount={viewMode === "payer" ? 14250.48 : 0}
+              totalAmount={viewMode === "payer" ? 25000.0 : 0}
+              ratePerSec={viewMode === "payer" ? 0.00482 : 0}
+              tokenSymbol={viewMode === "payer" ? "USDC" : "🔒 ENCRYPTED"}
+              streamName={viewMode === "payer" ? "VP of Engineering - Executive Payroll" : "🔒 Confidential Sablier Stream #01"}
             />
           </section>
 
@@ -118,28 +149,45 @@ export default function StreamDetailsPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Column 1 & 2: Specifications */}
             <section className="md:col-span-2 p-6 rounded-xl bg-[#131316] border border-[#27272A] space-y-6">
-              <h2 className="text-base font-semibold text-white flex items-center gap-2">
-                <FiShield className="w-4 h-4 text-[#8B5CF6]" />
-                <span>Stream Protocol Parameters</span>
+              <h2 className="text-base font-semibold text-white flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <FiShield className="w-4 h-4 text-[#8B5CF6]" />
+                  <span>Stream Protocol Parameters</span>
+                </span>
+                <span className="text-xs font-jetbrains text-[#958EA0]">
+                  {viewMode === "payer" ? "Decrypted State" : "Public Block Log"}
+                </span>
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-jetbrains">
                 <div className="p-3.5 rounded-lg bg-[#1B1B1E] border border-[#27272A] space-y-1">
                   <p className="text-[#958EA0]">Streaming Rate</p>
-                  <p className="text-sm font-bold text-white">0.00482 USDC/sec</p>
-                  <p className="text-[10px] text-[#958EA0]">$416.44 USDC / 24 Hours</p>
+                  <p className="text-sm font-bold text-white">
+                    {viewMode === "payer" ? "0.00482 USDC/sec" : "🔒 Encrypted in TEE"}
+                  </p>
+                  <p className="text-[10px] text-[#958EA0]">
+                    {viewMode === "payer" ? "$416.44 USDC / 24 Hours" : "Hidden from Explorer"}
+                  </p>
                 </div>
 
                 <div className="p-3.5 rounded-lg bg-[#1B1B1E] border border-[#27272A] space-y-1">
                   <p className="text-[#958EA0]">Total Streamed / Cap</p>
-                  <p className="text-sm font-bold text-white">14,250.48 / 25,000 USDC</p>
-                  <p className="text-[10px] text-emerald-400">57% Completed</p>
+                  <p className="text-sm font-bold text-white">
+                    {viewMode === "payer" ? "14,250.48 / 25,000 USDC" : "🔒 Confidential Commitment"}
+                  </p>
+                  <p className="text-[10px] text-emerald-400">
+                    {viewMode === "payer" ? "57% Completed" : "Nox Proof Valid"}
+                  </p>
                 </div>
 
                 <div className="p-3.5 rounded-lg bg-[#1B1B1E] border border-[#27272A] space-y-1">
-                  <p className="text-[#958EA0]">Start Timestamp</p>
-                  <p className="text-sm font-bold text-white">2026-07-01 00:00 UTC</p>
-                  <p className="text-[10px] text-[#958EA0]">Continuous Unlocking</p>
+                  <p className="text-[#958EA0]">Recipient Wallet</p>
+                  <p className="text-sm font-bold text-white">
+                    {viewMode === "payer" ? "0x94...21a8" : "🔒 0xVeilStreamProxy"}
+                  </p>
+                  <p className="text-[10px] text-[#958EA0]">
+                    {viewMode === "payer" ? "Direct Key Matched" : "Proxy Stealth Vault"}
+                  </p>
                 </div>
 
                 <div className="p-3.5 rounded-lg bg-[#1B1B1E] border border-[#27272A] space-y-1">
@@ -156,9 +204,21 @@ export default function StreamDetailsPage() {
                 </h3>
                 <div className="space-y-2">
                   {[
-                    { title: "Continuous Yield Unlocked", time: "Just now", desc: "+0.00482 USDC synced to ZK state" },
-                    { title: "Recipient Partial Withdrawal", time: "2 hours ago", desc: "Claimed 1,200.00 USDC via Shielded Note" },
-                    { title: "Stream Top Up", time: "3 days ago", desc: "Added +10,000 USDC to vault balance" },
+                    {
+                      title: "Continuous Yield Unlocked",
+                      time: "Just now",
+                      desc: viewMode === "payer" ? "+0.00482 USDC synced to ZK state" : "🔒 Confidential State Transition",
+                    },
+                    {
+                      title: "Recipient Partial Withdrawal",
+                      time: "2 hours ago",
+                      desc: viewMode === "payer" ? "Claimed 1,200.00 USDC via Stealth Vault" : "🔒 Atomic Claim via Veil Proxy",
+                    },
+                    {
+                      title: "Stream Top Up",
+                      time: "3 days ago",
+                      desc: viewMode === "payer" ? "Added +10,000 USDC to vault balance" : "🔒 Top Up Executed",
+                    },
                   ].map((event, idx) => (
                     <div
                       key={idx}
@@ -183,7 +243,7 @@ export default function StreamDetailsPage() {
               <div className="space-y-4">
                 <h2 className="text-base font-semibold text-white flex items-center gap-2">
                   <FiCode className="w-4 h-4 text-emerald-400" />
-                  <span>ZK Payload Inspector</span>
+                  <span>Nox Confidential Payload</span>
                 </h2>
 
                 <div className="p-3.5 rounded-lg bg-[#1B1B1E] border border-[#27272A] space-y-2 text-xs font-jetbrains">
@@ -203,9 +263,9 @@ export default function StreamDetailsPage() {
                 </div>
 
                 <div className="p-3.5 rounded-lg bg-[#1B1B1E] border border-[#27272A] space-y-1 text-xs">
-                  <p className="text-[#958EA0] font-jetbrains">Verification Proof Standard</p>
-                  <p className="text-white font-semibold">Groth16 / PLONK Zero-Knowledge</p>
-                  <p className="text-[11px] text-emerald-400 font-jetbrains">Valid Proof Verified by Solana Onchain Program</p>
+                  <p className="text-[#958EA0] font-jetbrains">Nox Protocol Enclave</p>
+                  <p className="text-white font-semibold">iExec Nox TEE Confidential Compute</p>
+                  <p className="text-[11px] text-emerald-400 font-jetbrains">ETH Sepolia Contract Verified</p>
                 </div>
               </div>
 
