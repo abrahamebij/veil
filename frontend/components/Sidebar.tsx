@@ -15,8 +15,8 @@ import {
 
 const navigationItems = [
   { name: "Overview", href: "/dashboard", icon: FiGrid },
+  { name: "All Streams", href: "/dashboard/streams", icon: FiActivity },
   { name: "Create Stream", href: "/dashboard/streams/create", icon: FiSend },
-  { name: "Stream Details", href: "/dashboard/streams/1", icon: FiEye },
   { name: "Claim Portal", href: "/claim", icon: FiDownload },
 ];
 

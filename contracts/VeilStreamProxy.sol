@@ -2,16 +2,16 @@
 pragma solidity ^0.8.24;
 
 import "./interfaces/IERC20.sol";
-import "./interfaces/ISablierV2LockupLinear.sol";
+import "./interfaces/ISablierLockup.sol";
 
 /**
  * @title VeilStreamProxy
- * @notice Confidential proxy & stealth vault wrapper for Sablier V2 streams.
+ * @notice Confidential proxy & stealth vault wrapper for Sablier v4.0 Lockup streams.
  *         Ensures recipient identities and salary details are encrypted and decoupled
  *         from public Sablier event emissions, while enabling a seamless 1-click claim UX.
  */
 contract VeilStreamProxy {
-    ISablierV2LockupLinear public immutable sablier;
+    ISablierLockup public immutable sablier;
 
     struct ConfidentialStream {
         address payer;
@@ -45,12 +45,12 @@ contract VeilStreamProxy {
 
     constructor(address _sablier) {
         require(_sablier != address(0), "VeilStreamProxy: invalid sablier address");
-        sablier = ISablierV2LockupLinear(_sablier);
+        sablier = ISablierLockup(_sablier);
     }
 
     /**
-     * @notice Create a confidential stream.
-     * @dev The payer transfers tokens to VeilStreamProxy, which approves Sablier V2 and
+     * @notice Create a confidential stream using Sablier v4.0 Lockup contract.
+     * @dev The payer transfers tokens to VeilStreamProxy, which approves Sablier and
      *      creates a stream where `address(this)` is set as Sablier recipient.
      *      The actual recipient mapping is securely stored inside this contract.
      */
@@ -70,21 +70,20 @@ contract VeilStreamProxy {
         // Approve Sablier to pull tokens from this contract
         IERC20(asset).approve(address(sablier), totalAmount);
 
-        // Call Sablier with `address(this)` as the Sablier recipient to shield the real recipient
-        ISablierV2LockupLinear.LockupLinearDurations memory params = ISablierV2LockupLinear
-            .LockupLinearDurations({
-                sender: msg.sender,
-                recipient: address(this),
-                totalAmount: totalAmount,
-                asset: asset,
-                cancelable: true,
-                transferable: false,
-                duration: duration,
-                broker: address(0),
-                brokerFee: 0
-            });
+        // Call Sablier v4.0 `createWithDurationsLL` with `address(this)` as the Sablier recipient
+        ISablierLockup.LockupLinearDurations memory params = ISablierLockup.LockupLinearDurations({
+            sender: msg.sender,
+            recipient: address(this),
+            totalAmount: totalAmount,
+            asset: asset,
+            cancelable: true,
+            transferable: false,
+            durations: ISablierLockup.Durations({ cliff: 0, total: duration }),
+            broker: address(0),
+            brokerFee: 0
+        });
 
-        streamId = sablier.createWithDurations(params);
+        streamId = sablier.createWithDurationsLL(params);
 
         confidentialStreams[streamId] = ConfidentialStream({
             payer: msg.sender,
