@@ -1,5 +1,6 @@
-const { expect } = require("chai");
-const { ethers } = require("hardhat");
+import { expect } from "chai";
+import hardhat from "hardhat";
+const { ethers } = hardhat;
 
 describe("VeilStreamProxy - Hardhat Proxy Spike Test", function () {
   let payer, recipient, observer;

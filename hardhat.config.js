@@ -1,7 +1,8 @@
-require("@nomicfoundation/hardhat-toolbox");
+import { defineConfig } from "hardhat/config";
+import hardhatEthers from "@nomicfoundation/hardhat-ethers";
 
-/** @type import('hardhat/config').HardhatUserConfig */
-module.exports = {
+export default defineConfig({
+  plugins: [hardhatEthers],
   solidity: {
     version: "0.8.24",
     settings: {
@@ -12,10 +13,13 @@ module.exports = {
     },
   },
   networks: {
-    hardhat: {},
+    hardhat: {
+      type: "edr-simulated",
+    },
     sepolia: {
+      type: "http",
       url: process.env.SEPOLIA_RPC_URL || "https://rpc.sepolia.org",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
     },
   },
-};
+});

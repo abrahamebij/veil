@@ -1,5 +1,5 @@
 {
-	"name": "veil",
+	"name": "veil-contracts",
 	"version": "1.0.0",
 	"license": "ISC",
 	"author": "",
@@ -10,10 +10,14 @@
 		"test": "test"
 	},
 	"scripts": {
-		"compile": "npx hardhat compile"
+		"compile": "npx hardhat compile",
+		"test": "npx hardhat test"
 	},
 	"devDependencies": {
+		"@nomicfoundation/hardhat-ethers": "4.0.0",
+		"@nomicfoundation/hardhat-mocha": "^3.0.21",
 		"@nomicfoundation/hardhat-toolbox": "^7.0.0",
+		"@nomicfoundation/hardhat-toolbox-mocha-ethers": "^3.0.7",
 		"hardhat": "^3.11.0"
 	}
 }
