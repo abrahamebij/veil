@@ -23,6 +23,9 @@
 }
 
 @layer utilities {
+  button {
+    cursor: pointer
+  }
   .font-jetbrains {
     font-family: var(--font-jetbrains-mono), monospace;
   }
