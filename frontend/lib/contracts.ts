@@ -4,9 +4,9 @@ import { ethers } from "ethers";
 export const SABLIER_LOCKUP_SEPOLIA_ADDRESS =
   process.env.NEXT_PUBLIC_SABLIER_ADDRESS || "0xe61cb9153356419bdaD0A8767c059f92d221a3C4";
 
-// Default VeilStreamProxy contract address on Sepolia (update after deploying via scripts/deploy.js)
+// Live Deployed VeilStreamProxy contract address on ETH Sepolia Testnet
 export const VEIL_PROXY_SEPOLIA_ADDRESS =
-  process.env.NEXT_PUBLIC_VEIL_PROXY_ADDRESS || "0x0000000000000000000000000000000000000000";
+  process.env.NEXT_PUBLIC_VEIL_PROXY_ADDRESS || "0xF0A04E4a28C9f60302f4629520CeF850B0A880fa";
 
 // Minimal ERC20 ABI
 export const ERC20_ABI = [

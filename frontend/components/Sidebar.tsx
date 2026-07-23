@@ -1,16 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useWallet } from "@/context/WalletContext";
 import {
   FiGrid,
   FiSend,
-  FiEye,
   FiDownload,
   FiShield,
-  FiSettings,
   FiLogOut,
   FiActivity,
+  FiLogIn,
 } from "react-icons/fi";
 
 const navigationItems = [
@@ -22,6 +22,17 @@ const navigationItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { account, isConnected, disconnectWallet } = useWallet();
+
+  const handleLogout = () => {
+    disconnectWallet();
+    router.push("/login");
+  };
+
+  const truncatedAddress = account
+    ? `${account.slice(0, 6)}...${account.slice(-4)}`
+    : "Not Connected";
 
   return (
     <aside className="w-64 shrink-0 bg-[#131316] border-r border-[#27272A] flex flex-col justify-between h-screen sticky top-0 z-30">
@@ -94,17 +105,29 @@ export function Sidebar() {
               0x
             </div>
             <div className="truncate text-xs">
-              <p className="text-white font-mono truncate">0x84...3a9f</p>
-              <p className="text-[#958EA0] text-[10px]">Institutional Org</p>
+              <p className="text-white font-mono truncate">{truncatedAddress}</p>
+              <p className="text-[#958EA0] text-[10px]">
+                {isConnected ? "Connected Wallet" : "Unauthenticated"}
+              </p>
             </div>
           </div>
-          <Link
-            href="/login"
-            title="Disconnect Wallet"
-            className="text-[#958EA0] hover:text-rose-400 p-1.5 transition-colors"
-          >
-            <FiLogOut className="w-4 h-4" />
-          </Link>
+          {isConnected ? (
+            <button
+              onClick={handleLogout}
+              title="Disconnect Wallet"
+              className="text-[#958EA0] hover:text-rose-400 p-1.5 transition-colors"
+            >
+              <FiLogOut className="w-4 h-4" />
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              title="Connect Wallet"
+              className="text-[#8B5CF6] hover:text-white p-1.5 transition-colors"
+            >
+              <FiLogIn className="w-4 h-4" />
+            </Link>
+          )}
         </div>
       </div>
     </aside>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
+import { WalletProvider } from "@/context/WalletContext";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -33,9 +34,8 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${jetbrainsMono.variable} h-full dark antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#0A0A0C] text-[#E4E1E5] font-sans selection:bg-[#8B5CF6]/30 selection:text-white">
-        {children}
+        <WalletProvider>{children}</WalletProvider>
       </body>
     </html>
   );
 }
-

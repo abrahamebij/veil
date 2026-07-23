@@ -1,6 +1,13 @@
 import { defineConfig } from "hardhat/config";
 import hardhatEthers from "@nomicfoundation/hardhat-ethers";
 
+// Load .env file using Node's built-in env loader
+try {
+  process.loadEnvFile();
+} catch (e) {
+  // Ignore if .env is missing
+}
+
 export default defineConfig({
   plugins: [hardhatEthers],
   solidity: {

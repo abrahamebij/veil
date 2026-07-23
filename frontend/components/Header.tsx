@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { FiSearch, FiBell, FiLock, FiPlus, FiCheckCircle } from "react-icons/fi";
+import { useWallet } from "@/context/WalletContext";
+import { FiSearch, FiBell, FiLock, FiPlus, FiCheckCircle, FiKey } from "react-icons/fi";
 
 export function Header() {
+  const { account, isConnected, connectWallet } = useWallet();
+
   return (
     <header className="h-16 border-b border-[#27272A] bg-[#131316]/80 backdrop-blur-md sticky top-0 z-20 px-6 flex items-center justify-between gap-4">
       {/* Search Bar */}
@@ -21,8 +24,24 @@ export function Header() {
         {/* Network status badge */}
         <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-[#1F1F22] border border-[#27272A] text-xs text-[#CBC3D7]">
           <FiCheckCircle className="w-3.5 h-3.5 text-emerald-400" />
-          <span className="font-jetbrains">ZK-Rollup #8491</span>
+          <span className="font-jetbrains">ETH Sepolia Testnet</span>
         </div>
+
+        {/* Wallet Connect Button */}
+        {isConnected && account ? (
+          <div className="flex items-center gap-2 bg-[#1B1B1E] border border-[#8B5CF6]/40 px-3 py-1.5 rounded-md text-xs font-mono text-white">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>{account.slice(0, 6)}...{account.slice(-4)}</span>
+          </div>
+        ) : (
+          <button
+            onClick={() => connectWallet().catch(console.error)}
+            className="flex items-center gap-2 bg-[#8B5CF6]/20 border border-[#8B5CF6] hover:bg-[#8B5CF6] text-white px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors shadow-sm"
+          >
+            <FiKey className="w-3.5 h-3.5" />
+            <span>Connect Wallet</span>
+          </button>
+        )}
 
         {/* Quick Action Button */}
         <Link
