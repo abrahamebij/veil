@@ -29,31 +29,51 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
   const [isRestoring, setIsRestoring] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Restore stored account from localStorage if present
+  // Restore stored account silently from eth_accounts / localStorage on mount
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedAccount = localStorage.getItem("veil_connected_account");
-      if (storedAccount) {
-        setAccount(storedAccount);
-      }
+    async function checkSilentConnection() {
+      if (typeof window !== "undefined") {
+        const storedAccount = localStorage.getItem("veil_connected_account");
 
-      // Listen for window.ethereum account changes
-      if ((window as any).ethereum) {
-        (window as any).ethereum.on("accountsChanged", (accounts: string[]) => {
-          if (accounts.length > 0) {
-            setAccount(accounts[0]);
-            localStorage.setItem("veil_connected_account", accounts[0]);
-          } else {
-            setAccount(null);
-            localStorage.clear();
-            sessionStorage.clear();
+        if ((window as any).ethereum) {
+          try {
+            // eth_accounts returns currently authorized accounts SILENTLY without popup
+            const accounts: string[] = await (window as any).ethereum.request({
+              method: "eth_accounts",
+            });
+
+            if (accounts && accounts.length > 0) {
+              setAccount(accounts[0]);
+              localStorage.setItem("veil_connected_account", accounts[0]);
+            } else if (storedAccount) {
+              // Preserve stored session address
+              setAccount(storedAccount);
+            } else {
+              setAccount(null);
+            }
+          } catch (e) {
+            if (storedAccount) setAccount(storedAccount);
           }
-        });
+
+          // Listen for window.ethereum account changes
+          (window as any).ethereum.on("accountsChanged", (accounts: string[]) => {
+            if (accounts.length > 0) {
+              setAccount(accounts[0]);
+              localStorage.setItem("veil_connected_account", accounts[0]);
+            } else {
+              setAccount(null);
+              localStorage.clear();
+              sessionStorage.clear();
+            }
+          });
+        } else if (storedAccount) {
+          setAccount(storedAccount);
+        }
       }
-      setIsRestoring(false);
-    } else {
       setIsRestoring(false);
     }
+
+    checkSilentConnection();
   }, []);
 
   const connectWallet = async (): Promise<string | null> => {
@@ -66,7 +86,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
 
       const provider = new ethers.BrowserProvider((window as any).ethereum);
       const accounts = await provider.send("eth_requestAccounts", []);
-      
+
       if (accounts && accounts.length > 0) {
         const userAccount = accounts[0];
         setAccount(userAccount);

@@ -13,6 +13,7 @@ import {
   VEIL_PROXY_ABI,
   SABLIER_LOCKUP_SEPOLIA_ADDRESS,
   SABLIER_LOCKUP_ABI,
+  getReadOnlyProvider,
 } from "@/lib/contracts";
 import {
   FiDownload,
@@ -40,7 +41,7 @@ export default function ClaimPaymentPage() {
 
   useEffect(() => {
     async function loadRecipientYield() {
-      if (!account || typeof window === "undefined" || !(window as any).ethereum) {
+      if (!account) {
         setIsLoading(false);
         return;
       }
@@ -57,7 +58,7 @@ export default function ClaimPaymentPage() {
       }
 
       try {
-        const provider = new ethers.BrowserProvider((window as any).ethereum);
+        const provider = getReadOnlyProvider();
 
         const code = await provider.getCode(VEIL_PROXY_SEPOLIA_ADDRESS);
         if (code === "0x" || code === "0x0") {
@@ -149,7 +150,7 @@ export default function ClaimPaymentPage() {
                 <span>/</span>
                 <span>Claim Portal</span>
               </div>
-              <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+              <h1 className="text-2xl md:text-3xl font-bold text-[#FFFFFF] tracking-tight flex items-center gap-3">
                 <span>Recipient Claim Portal</span>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-jetbrains bg-[#8B5CF6]/20 text-[#D0BCFF] border border-[#8B5CF6]/40">
                   ZK Shielded

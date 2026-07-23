@@ -8,6 +8,17 @@ export const SABLIER_LOCKUP_SEPOLIA_ADDRESS =
 export const VEIL_PROXY_SEPOLIA_ADDRESS =
   process.env.NEXT_PUBLIC_VEIL_PROXY_ADDRESS || "0xF0A04E4a28C9f60302f4629520CeF850B0A880fa";
 
+export const SEPOLIA_RPC_URL =
+  process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL || "https://rpc.sepolia.org";
+
+/**
+ * Returns a read-only Sepolia RPC provider for querying contract state
+ * without triggering browser wallet extension popups or permission prompts.
+ */
+export function getReadOnlyProvider() {
+  return new ethers.JsonRpcProvider(SEPOLIA_RPC_URL);
+}
+
 // Minimal ERC20 ABI
 export const ERC20_ABI = [
   "function approve(address spender, uint256 amount) external returns (bool)",
@@ -34,7 +45,7 @@ export const SABLIER_LOCKUP_ABI = [
 ];
 
 /**
- * Connects user's browser wallet (MetaMask / Rabby / WalletConnect)
+ * Connects user's browser wallet (MetaMask / Rabby / WalletConnect) for write transactions
  */
 export async function connectWallet() {
   if (typeof window !== "undefined" && (window as any).ethereum) {

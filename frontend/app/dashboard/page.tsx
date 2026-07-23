@@ -11,6 +11,7 @@ import { ethers } from "ethers";
 import {
   VEIL_PROXY_SEPOLIA_ADDRESS,
   VEIL_PROXY_ABI,
+  getReadOnlyProvider,
 } from "@/lib/contracts";
 import {
   FiDownload,
@@ -29,7 +30,7 @@ export default function DashboardOverviewPage() {
 
   useEffect(() => {
     async function loadOnChainStreams() {
-      if (!account || typeof window === "undefined" || !(window as any).ethereum) {
+      if (!account) {
         setIsLoading(false);
         return;
       }
@@ -46,7 +47,8 @@ export default function DashboardOverviewPage() {
       }
 
       try {
-        const provider = new ethers.BrowserProvider((window as any).ethereum);
+        // Use read-only RPC provider so page navigation never triggers browser wallet extension popups
+        const provider = getReadOnlyProvider();
 
         const code = await provider.getCode(VEIL_PROXY_SEPOLIA_ADDRESS);
         if (code === "0x" || code === "0x0") {

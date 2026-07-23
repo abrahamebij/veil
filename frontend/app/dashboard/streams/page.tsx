@@ -11,6 +11,7 @@ import { ethers } from "ethers";
 import {
   VEIL_PROXY_SEPOLIA_ADDRESS,
   VEIL_PROXY_ABI,
+  getReadOnlyProvider,
 } from "@/lib/contracts";
 import {
   FiEye,
@@ -38,7 +39,7 @@ function StreamsContent() {
 
   useEffect(() => {
     async function loadOnChainStreams() {
-      if (!account || typeof window === "undefined" || !(window as any).ethereum) {
+      if (!account) {
         setIsLoading(false);
         return;
       }
@@ -54,7 +55,7 @@ function StreamsContent() {
       }
 
       try {
-        const provider = new ethers.BrowserProvider((window as any).ethereum);
+        const provider = getReadOnlyProvider();
         const code = await provider.getCode(VEIL_PROXY_SEPOLIA_ADDRESS);
         if (code === "0x" || code === "0x0") {
           setStreams([]);

@@ -1,20 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { useWallet } from "@/context/WalletContext";
 import {
   FiShield,
   FiLock,
   FiZap,
-  FiGlobe,
   FiArrowRight,
-  FiCheckCircle,
   FiEyeOff,
-  FiTrendingUp,
   FiKey,
 } from "react-icons/fi";
 import { StreamProgressChart } from "@/components/StreamProgressChart";
 
 export default function LandingPage() {
+  const { account, isConnected } = useWallet();
+
   return (
     <div className="min-h-screen bg-[#0A0A0C] text-[#E4E1E5] flex flex-col justify-between selection:bg-[#8B5CF6]/30">
       {/* Top Navbar */}
@@ -47,12 +47,19 @@ export default function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-4">
-            <Link
-              href="/login"
-              className="text-sm font-medium text-[#CBC3D7] hover:text-white transition-colors"
-            >
-              Sign In
-            </Link>
+            {isConnected && account ? (
+              <div className="flex items-center gap-2 bg-[#1B1B1E] border border-[#8B5CF6]/40 px-3.5 py-1.5 rounded-lg text-xs font-mono text-white">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>{account.slice(0, 6)}...{account.slice(-4)}</span>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="text-sm font-medium text-[#CBC3D7] hover:text-white transition-colors"
+              >
+                Sign In
+              </Link>
+            )}
             <Link
               href="/dashboard"
               className="flex items-center gap-2 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-md shadow-[#8B5CF6]/20 hover:shadow-[#8B5CF6]/40"
