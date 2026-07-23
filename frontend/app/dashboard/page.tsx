@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
 import { AuthGuard } from "@/components/AuthGuard";
+import { DashboardMetrics } from "@/components/DashboardMetrics";
 import { useWallet } from "@/context/WalletContext";
 import { ethers } from "ethers";
 import {
@@ -12,13 +13,9 @@ import {
   VEIL_PROXY_ABI,
 } from "@/lib/contracts";
 import {
-  FiActivity,
-  FiShield,
   FiDownload,
   FiPlus,
   FiLock,
-  FiClock,
-  FiCheckCircle,
   FiInbox,
   FiEye,
   FiAlertTriangle,
@@ -37,7 +34,6 @@ export default function DashboardOverviewPage() {
         return;
       }
 
-      // Check if proxy address is configured
       if (
         !VEIL_PROXY_SEPOLIA_ADDRESS ||
         VEIL_PROXY_SEPOLIA_ADDRESS === "0x0000000000000000000000000000000000000000" ||
@@ -52,7 +48,6 @@ export default function DashboardOverviewPage() {
       try {
         const provider = new ethers.BrowserProvider((window as any).ethereum);
 
-        // Verify contract bytecode exists on network before calling
         const code = await provider.getCode(VEIL_PROXY_SEPOLIA_ADDRESS);
         if (code === "0x" || code === "0x0") {
           setIsContractDeployed(false);
@@ -94,16 +89,13 @@ export default function DashboardOverviewPage() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0C] text-[#E4E1E5] flex">
-      {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         <Header />
 
         <main className="flex-1 p-6 md:p-8 space-y-8 max-w-7xl mx-auto w-full">
           <AuthGuard>
-            {/* Deployment Warning Banner if Proxy contract isn't deployed on Sepolia yet */}
             {!isContractDeployed && (
               <aside className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs font-jetbrains text-amber-300 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
@@ -118,7 +110,6 @@ export default function DashboardOverviewPage() {
               </aside>
             )}
 
-            {/* Top Summary Header */}
             <section className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#27272A] pb-6">
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
@@ -146,86 +137,11 @@ export default function DashboardOverviewPage() {
               </div>
             </section>
 
-            {/* Metric Cards Grid */}
-            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <article className="p-5 rounded-xl bg-[#131316] border border-[#27272A] space-y-3">
-                <div className="flex items-center justify-between text-[#958EA0]">
-                  <span className="text-xs font-jetbrains uppercase tracking-wider">
-                    Total Streams
-                  </span>
-                  <span className="p-1.5 rounded bg-[#8B5CF6]/10 text-[#8B5CF6]">
-                    <FiActivity className="w-4 h-4" />
-                  </span>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-white font-jetbrains">
-                    {streams.length}
-                  </p>
-                  <p className="text-[11px] text-[#958EA0] mt-1">
-                    On-Chain Verified
-                  </p>
-                </div>
-              </article>
+            <DashboardMetrics
+              streamCount={streams.length}
+              activeCount={streams.filter((s) => s.isActive).length}
+            />
 
-              <article className="p-5 rounded-xl bg-[#131316] border border-[#27272A] space-y-3">
-                <div className="flex items-center justify-between text-[#958EA0]">
-                  <span className="text-xs font-jetbrains uppercase tracking-wider">
-                    Active Status
-                  </span>
-                  <span className="p-1.5 rounded bg-emerald-500/10 text-emerald-400">
-                    <FiCheckCircle className="w-4 h-4" />
-                  </span>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-white font-jetbrains">
-                    {streams.filter(s => s.isActive).length} Active
-                  </p>
-                  <p className="text-[11px] text-emerald-400 mt-1">
-                    Sablier v4.0 Stream
-                  </p>
-                </div>
-              </article>
-
-              <article className="p-5 rounded-xl bg-[#131316] border border-[#27272A] space-y-3">
-                <div className="flex items-center justify-between text-[#958EA0]">
-                  <span className="text-xs font-jetbrains uppercase tracking-wider">
-                    Target Network
-                  </span>
-                  <span className="p-1.5 rounded bg-amber-500/10 text-amber-400">
-                    <FiClock className="w-4 h-4" />
-                  </span>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-white font-jetbrains">
-                    ETH Sepolia
-                  </p>
-                  <p className="text-[11px] text-[#958EA0] mt-1">
-                    0xe61c...3C4
-                  </p>
-                </div>
-              </article>
-
-              <article className="p-5 rounded-xl bg-[#131316] border border-[#27272A] space-y-3">
-                <div className="flex items-center justify-between text-[#958EA0]">
-                  <span className="text-xs font-jetbrains uppercase tracking-wider">
-                    Privacy Layer
-                  </span>
-                  <span className="p-1.5 rounded bg-[#8B5CF6]/10 text-[#8B5CF6]">
-                    <FiShield className="w-4 h-4" />
-                  </span>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-white font-jetbrains">
-                    Veil Vault Proxy
-                  </p>
-                  <p className="text-[11px] text-emerald-400 mt-1">
-                    Decoupled Recipient
-                  </p>
-                </div>
-              </article>
-            </section>
-
-            {/* On-Chain Streams Table */}
             <section className="space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold text-white">
